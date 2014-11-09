@@ -1,0 +1,24 @@
+from scrapy.contrib.spiders import CrawlSpider, Rule
+from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor
+from scrapy.selector import HtmlXPathSelector
+from slugify import slugify
+from voodoobot.items import VoodooItem
+
+class EspnSpider(CrawlSpider):
+    name = 'espn'
+    start_urls = ['http://www.espnfc.us']
+    rules = [Rule(SgmlLinkExtractor(allow=[r'^[a-z0-9-]+$/story/\d+$/[a-z0-9-]+$']), callback='parse_newspost'),
+             ]
+    
+    def parse_newspost(self, response):
+        hxs = HtmlXPathSelector(response)
+        item = VoodooItem()
+        # Extract the article title
+        item['title'] = hxs.select('//body/article/h1/text()').extract()
+        item['slug'] = slugify(item['title'])
+        body = hxs.select('//div[contains(@class, 'above-fold')]')
+
+        for p in body.select('.//p')
+            item['body'].append(p.extract())
+            
+                                  
